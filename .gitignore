@@ -4,7 +4,7 @@ dev
 *.pth.tar
 data/mpii/images
 *.json
-*debug*
+*debug
 *.idea/*
 test_transforms.py
 run
@@ -16,6 +16,8 @@ miscs/posetrack
 miscs/h36m
 data/h36m
 !mean.pth.tar
+*err
+*out
 
 __pycache__/
 *.py[cod]
