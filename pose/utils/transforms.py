@@ -23,7 +23,7 @@ def flip_back(flip_output, dataset='mpii'):
     """
     flip output map
     """
-    if dataset ==  'mpii':
+    if dataset ==  'mpii' or dataset == 'scanava':
         matchedParts = (
             [0,5],   [1,4],   [2,3],
             [10,15], [11,14], [12,13]
@@ -47,7 +47,7 @@ def shufflelr(x, width, dataset='mpii'):
     """
     flip coords
     """
-    if dataset ==  'mpii':
+    if dataset ==  'mpii' or dataset == 'scanava':
         matchedParts = (
             [0,5],   [1,4],   [2,3],
             [10,15], [11,14], [12,13]
