@@ -190,68 +190,72 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True, tra
 
     bar_len = [train_iters if train_iters != 0 else len(train_loader)][0]
     bar = Bar('Train', max=bar_len)
-    for i, (input, target, meta) in enumerate(train_loader):
-        # measure data loading time
-        data_time.update(time.time() - end)
 
-        input, target = input.to(device), target.to(device, non_blocking=True)
-        target_weight = meta['target_weight'].to(device, non_blocking=True)
+    curr_iter = 0
+    while curr_iter < train_iters:
+        for i, (input, target, meta) in enumerate(train_loader):
+            # measure data loading time
+            data_time.update(time.time() - end)
 
-        # compute output
-        output = model(input)
-        if type(output) == list:  # multiple output
-            loss = 0
-            for o in output:
-                loss += criterion(o, target, target_weight)
-            output = output[-1]
-        else:  # single output
-            loss = criterion(output, target, target_weight)
-        acc = accuracy(output, target, idx)
+            input, target = input.to(device), target.to(device, non_blocking=True)
+            target_weight = meta['target_weight'].to(device, non_blocking=True)
 
-        if debug: # visualize groundtruth and predictions
-            gt_batch_img = batch_with_heatmap(input, target)
-            pred_batch_img = batch_with_heatmap(input, output)
-            fig = plt.figure()
-            ax1 = fig.add_subplot(121)
-            ax1.title.set_text('Groundtruth')
-            gt_win = plt.imshow(gt_batch_img)
-            ax2 = fig.add_subplot(122)
-            ax2.title.set_text('Prediction')
-            pred_win = plt.imshow(pred_batch_img)
-            plt.pause(.05)
-            plt.draw()
-            fig.savefig('debug/debug_{}.png'.format(str(debug_count)), dpi=500)
+            # compute output
+            output = model(input)
+            if type(output) == list:  # multiple output
+                loss = 0
+                for o in output:
+                    loss += criterion(o, target, target_weight)
+                output = output[-1]
+            else:  # single output
+                loss = criterion(output, target, target_weight)
+            acc = accuracy(output, target, idx)
 
-        debug_count += 1
+            if debug: # visualize groundtruth and predictions
+                gt_batch_img = batch_with_heatmap(input, target)
+                pred_batch_img = batch_with_heatmap(input, output)
+                fig = plt.figure()
+                ax1 = fig.add_subplot(121)
+                ax1.title.set_text('Groundtruth')
+                gt_win = plt.imshow(gt_batch_img)
+                ax2 = fig.add_subplot(122)
+                ax2.title.set_text('Prediction')
+                pred_win = plt.imshow(pred_batch_img)
+                plt.pause(.05)
+                plt.draw()
+                fig.savefig('debug/debug_{}.png'.format(str(debug_count)), dpi=500)
 
-        # measure accuracy and record loss
-        losses.update(loss.item(), input.size(0))
-        acces.update(acc[0], input.size(0))
+            debug_count += 1
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # measure accuracy and record loss
+            losses.update(loss.item(), input.size(0))
+            acces.update(acc[0], input.size(0))
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.6f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc: .4f}'.format(
-                    batch=i + 1,
-                    size=[len(train_loader) if train_iters == 0 else train_iters][0],
-                    data=data_time.val,
-                    bt=batch_time.val,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    acc=acces.avg
-                    )
-        bar.next()
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
 
-        if i == train_iters - 1:
-            break
+            # plot progress
+            bar.suffix  = '({batch}/{size}) Data: {data:.6f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc: .4f}'.format(
+                        batch=i + 1,
+                        size=[len(train_loader) if train_iters == 0 else train_iters][0],
+                        data=data_time.val,
+                        bt=batch_time.val,
+                        total=bar.elapsed_td,
+                        eta=bar.eta_td,
+                        loss=losses.avg,
+                        acc=acces.avg
+                        )
+            bar.next()
+
+            curr_iter += 1
+            if curr_iter >= train_iters - 1:
+                break
 
     bar.finish()
     return losses.avg, acces.avg
