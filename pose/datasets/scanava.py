@@ -13,6 +13,7 @@ import torch.utils.data as data
 from pose.utils.osutils import *
 from pose.utils.imutils import *
 from pose.utils.transforms import *
+import pose.utils.noise as noise
 import cv2
 
 
@@ -36,6 +37,14 @@ class ScanAva(data.Dataset):
 
         # Get image center point
         self.c = tuple(np.array(cv2.imread(self.train_list[0][0]).shape[:2]) / 2)
+
+        # Setup custom domain adaptation for gaussian blur or white noise
+        self.apply_gaussian_blur = kwargs['gaussian_blur']
+        self.apply_white_noise = kwargs['white_noise']
+
+        if self.apply_gaussian_blur:
+            self.gaussian_kernel = noise.get_gaussian_kernel()
+
 
     def _compute_mean(self):
         meanstd_file = './data/scanava/mean.pth.tar'
@@ -115,6 +124,14 @@ class ScanAva(data.Dataset):
         # Prepare image and groundtruth map
         inp = crop(img, c, s, [self.inp_res, self.inp_res], rot=r)
         inp = color_normalize(inp, self.mean, self.std)
+
+        # Apply noise if desired
+        if self.apply_gaussian_blur:
+            inp = noise.gaussian_blur(inp, self.gaussian_kernel)
+        elif self.apply_white_noise:
+            white_noise = torch.randn(inp.shape) * 0.3
+            inp += white_noise
+            inp = torch.clamp(inp, 0, 1)  # Verify no color value > 1
 
         # Generate ground truth
         tpts = pts.clone()

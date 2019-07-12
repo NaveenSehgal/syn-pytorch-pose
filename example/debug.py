@@ -188,9 +188,12 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
 
     debug_count = 0
 
+    train_iters = 8000
+
     gt_win, pred_win = None, None
-    bar = Bar('Train', max=len(train_loader))
+    bar = Bar('Train', max=train_iters)
     for i, (input, target, meta) in enumerate(train_loader):
+
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -221,10 +224,8 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
             pred_win = plt.imshow(pred_batch_img)
             plt.pause(.05)
             plt.draw()
-            fig.savefig('debug/debug_{}.png'.format(str(debug_count)), dpi=500)
+            fig.savefig('debug/debug_{}_{}.png'.format(str(debug_count), str(int(time.time()))), dpi=1000)
             debug_count += 1
-
-        import pdb; pdb.set_trace()
 
         # measure accuracy and record loss
         losses.update(loss.item(), input.size(0))
@@ -242,7 +243,7 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
         # plot progress
         bar.suffix  = '({batch}/{size}) Data: {data:.6f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc: .4f}'.format(
                     batch=i + 1,
-                    size=len(train_loader),
+                    size=train_iters,
                     data=data_time.val,
                     bt=batch_time.val,
                     total=bar.elapsed_td,
@@ -251,6 +252,8 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
                     acc=acces.avg
                     )
         bar.next()
+        if i == train_iters - 1:
+            break
 
     bar.finish()
     return losses.avg, acces.avg
@@ -289,8 +292,6 @@ def validate(val_loader, model, criterion, num_classes, debug=False, flip=True):
                 flip_output = flip_output[-1].cpu() if type(flip_output) == list else flip_output.cpu()
                 flip_output = flip_back(flip_output)
                 score_map += flip_output
-
-
 
             if type(output) == list:  # multiple output
                 loss = 0
@@ -342,6 +343,9 @@ def validate(val_loader, model, criterion, num_classes, debug=False, flip=True):
                         acc=acces.avg
                         )
             bar.next()
+            
+            if i == 3:
+                break
 
         bar.finish()
     return losses.avg, acces.avg, predictions
