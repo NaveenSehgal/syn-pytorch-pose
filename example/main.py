@@ -189,6 +189,7 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True, tra
     gt_win, pred_win = None, None
 
     bar_len = [train_iters if train_iters != 0 else len(train_loader)][0]
+    train_iters = [train_iters if train_iters != 0 else len(train_loader)][0]
     bar = Bar('Train', max=bar_len)
 
     curr_iter = 0
