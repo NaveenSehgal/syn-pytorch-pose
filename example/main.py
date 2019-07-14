@@ -3,6 +3,8 @@ from __future__ import print_function, absolute_import
 import os
 import argparse
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import torch
@@ -148,7 +150,7 @@ def main(args):
 
         # train for one epoch
         train_loss, train_acc = train(train_loader, model, criterion, optimizer,
-                                      args.debug, args.flip)
+                                      args.debug, args.flip, args.train_iters)
 
         # evaluate on validation set
         valid_loss, valid_acc, predictions = validate(val_loader, model, criterion,
@@ -173,7 +175,8 @@ def main(args):
     savefig(os.path.join(args.checkpoint, 'log.eps'))
 
 
-def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
+def train(train_loader, model, criterion, optimizer, debug=False, flip=True, train_iters=0):
+    print("Train iters: {}".format(train_iters))
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
@@ -181,70 +184,79 @@ def train(train_loader, model, criterion, optimizer, debug=False, flip=True):
 
     # switch to train mode
     model.train()
-
+    debug_count = 0
     end = time.time()
-
     gt_win, pred_win = None, None
-    bar = Bar('Train', max=len(train_loader))
-    for i, (input, target, meta) in enumerate(train_loader):
-        # measure data loading time
-        data_time.update(time.time() - end)
 
-        input, target = input.to(device), target.to(device, non_blocking=True)
-        target_weight = meta['target_weight'].to(device, non_blocking=True)
+    bar_len = [train_iters if train_iters != 0 else len(train_loader)][0]
+    train_iters = [train_iters if train_iters != 0 else len(train_loader)][0]
+    bar = Bar('Train', max=bar_len)
 
-        # compute output
-        output = model(input)
-        if type(output) == list:  # multiple output
-            loss = 0
-            for o in output:
-                loss += criterion(o, target, target_weight)
-            output = output[-1]
-        else:  # single output
-            loss = criterion(output, target, target_weight)
-        acc = accuracy(output, target, idx)
+    curr_iter = 0
+    while curr_iter < train_iters:
+        for i, (input, target, meta) in enumerate(train_loader):
+            # measure data loading time
+            data_time.update(time.time() - end)
 
-        if debug: # visualize groundtruth and predictions
-            gt_batch_img = batch_with_heatmap(input, target)
-            pred_batch_img = batch_with_heatmap(input, output)
-            if not gt_win or not pred_win:
-                ax1 = plt.subplot(121)
+            input, target = input.to(device), target.to(device, non_blocking=True)
+            target_weight = meta['target_weight'].to(device, non_blocking=True)
+
+            # compute output
+            output = model(input)
+            if type(output) == list:  # multiple output
+                loss = 0
+                for o in output:
+                    loss += criterion(o, target, target_weight)
+                output = output[-1]
+            else:  # single output
+                loss = criterion(output, target, target_weight)
+            acc = accuracy(output, target, idx)
+
+            if debug: # visualize groundtruth and predictions
+                gt_batch_img = batch_with_heatmap(input, target)
+                pred_batch_img = batch_with_heatmap(input, output)
+                fig = plt.figure()
+                ax1 = fig.add_subplot(121)
                 ax1.title.set_text('Groundtruth')
                 gt_win = plt.imshow(gt_batch_img)
-                ax2 = plt.subplot(122)
+                ax2 = fig.add_subplot(122)
                 ax2.title.set_text('Prediction')
                 pred_win = plt.imshow(pred_batch_img)
-            else:
-                gt_win.set_data(gt_batch_img)
-                pred_win.set_data(pred_batch_img)
-            plt.pause(.05)
-            plt.draw()
+                plt.pause(.05)
+                plt.draw()
+                fig.savefig('debug/debug_{}.png'.format(str(debug_count)), dpi=500)
 
-        # measure accuracy and record loss
-        losses.update(loss.item(), input.size(0))
-        acces.update(acc[0], input.size(0))
+            debug_count += 1
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # measure accuracy and record loss
+            losses.update(loss.item(), input.size(0))
+            acces.update(acc[0], input.size(0))
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        # plot progress
-        bar.suffix  = '({batch}/{size}) Data: {data:.6f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc: .4f}'.format(
-                    batch=i + 1,
-                    size=len(train_loader),
-                    data=data_time.val,
-                    bt=batch_time.val,
-                    total=bar.elapsed_td,
-                    eta=bar.eta_td,
-                    loss=losses.avg,
-                    acc=acces.avg
-                    )
-        bar.next()
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            # plot progress
+            bar.suffix  = '({batch}/{size}) Data: {data:.6f}s | Batch: {bt:.3f}s | Total: {total:} | ETA: {eta:} | Loss: {loss:.4f} | Acc: {acc: .4f}'.format(
+                        batch=i + 1,
+                        size=[len(train_loader) if train_iters == 0 else train_iters][0],
+                        data=data_time.val,
+                        bt=batch_time.val,
+                        total=bar.elapsed_td,
+                        eta=bar.eta_td,
+                        loss=losses.avg,
+                        acc=acces.avg
+                        )
+            bar.next()
+
+            curr_iter += 1
+            if curr_iter >= train_iters - 1:
+                break
 
     bar.finish()
     return losses.avg, acces.avg
@@ -283,8 +295,6 @@ def validate(val_loader, model, criterion, num_classes, debug=False, flip=True):
                 flip_output = flip_output[-1].cpu() if type(flip_output) == list else flip_output.cpu()
                 flip_output = flip_back(flip_output)
                 score_map += flip_output
-
-
 
             if type(output) == list:  # multiple output
                 loss = 0
@@ -388,6 +398,8 @@ if __name__ == '__main__':
                         help='train batchsize')
     parser.add_argument('--test-batch', default=6, type=int, metavar='N',
                         help='test batchsize')
+    parser.add_argument('--train-iters', dest="train_iters", default=0, type=int,
+                        help="Number of train iterations per epoch")
     parser.add_argument('--lr', '--learning-rate', default=2.5e-4, type=float,
                         metavar='LR', help='initial learning rate')
     parser.add_argument('--momentum', default=0, type=float, metavar='M',
@@ -415,6 +427,11 @@ if __name__ == '__main__':
     parser.add_argument('--label-type', metavar='LABELTYPE', default='Gaussian',
                         choices=['Gaussian', 'Cauchy'],
                         help='Labelmap dist type: (default=Gaussian)')
+    parser.add_argument('--gaussian-blur', action='store_true', default=False,
+                        help="Apply gaussian blur to training data")
+    parser.add_argument('--white-noise', action="store_true", default=False,
+                        help="Apply white noise to training data")
+
     # Miscs
     parser.add_argument('-c', '--checkpoint', default='checkpoint', type=str, metavar='PATH',
                         help='path to save checkpoint (default: checkpoint)')
