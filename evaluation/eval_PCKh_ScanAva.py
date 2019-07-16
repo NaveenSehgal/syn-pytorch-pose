@@ -55,3 +55,24 @@ PCK_vals = np.zeros((len(threshold_vals), 16))
 for i, thresh in enumerate(threshold_vals):
     less_than_threshold = np.multiply(scaled_uv_err < thresh, jnt_visible)
     PCK_vals[i, :] = np.divide(100.*np.sum(less_than_threshold, axis=1), jnt_count)
+
+# Print values
+head = 9
+lsho = 13
+lelb = 14
+lwri = 15
+lhip = 3
+lkne = 4
+lank = 5
+rsho = 12
+relb = 11
+rwri = 10
+rkne = 1
+rank = 0
+rhip = 2
+print('\nPrediction file: {}\n'.format(args.result))
+print("Head,   Shoulder, Elbow,  Wrist,   Hip ,     Knee  , Ankle ,  Mean")
+print('{:.2f}  {:.2f}     {:.2f}  {:.2f}   {:.2f}   {:.2f}   {:.2f}   {:.2f}'.format(PCKh[head], 0.5 * (PCKh[lsho] + PCKh[rsho])\
+        , 0.5 * (PCKh[lelb] + PCKh[relb]),0.5 * (PCKh[lwri] + PCKh[rwri]), 0.5 * (PCKh[lhip] + PCKh[rhip]), 0.5 * (PCKh[lkne] + PCKh[rkne]) \
+        , 0.5 * (PCKh[lank] + PCKh[rank]), np.mean(PCKh)))
+
