@@ -6,6 +6,7 @@ import numpy as np
 import scipy.misc
 
 from .misc import *
+import cv2
 
 def im_to_numpy(img):
     img = to_numpy(img)
@@ -18,6 +19,9 @@ def im_to_torch(img):
     if img.max() > 1:
         img /= 255
     return img
+
+def resize_and_load(img_path, res=256):
+    return im_to_torch(cv2.resize(scipy.misc.imread(img_path, mode='RGB'), (res, res))), cv2.imread(img_path).shape
 
 def load_image(img_path):
     # H x W x C => C x H x W
