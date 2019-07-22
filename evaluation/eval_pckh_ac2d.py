@@ -9,13 +9,12 @@ SC_BIAS = 0.6
 # ------------------------------------------------------------ #
 
 
-def eval_scanava(pred_file, annotations_path):
+def eval_ac2d(pred_file, annotations_path):
     annotations = np.load(annotations_path, allow_pickle=True)
+    joints = annotations[0]  # (N, 16, 2)
 
     # Filter for test samples
-    test_indices = np.where(annotations[:, 2] == 0)[0]
-    annotations = annotations[test_indices]
-    ground_truth = np.dstack(annotations[:, 1])  # TODO: Verify. (16, 2, 14800)
+    ground_truth = np.transpose(joints, [1, 2, 0])  # (16, 2, N)
 
     # Load results
     preds = sio.loadmat(pred_file)
@@ -72,17 +71,22 @@ def eval_scanava(pred_file, annotations_path):
 
     return [threshold_vals, PCK_vals]
 
+
+if __name__ == '__main__':
+    results = "/home/sehgal.n/syn-pytorch-pose/checkpoint/old/scanava/hg-s2/preds_valid.mat"
+    annotations_path = "/home/sehgal.n/syn-pytorch-pose/data/AC2d/ac2d_00_annotations.npy"
+    results = eval_ac2d(results, annotations_path)
+
+'''
 # Get results file
 parser = argparse.ArgumentParser(description='MPII PCKh Evaluation')
 parser.add_argument('-r', '--result', default='checkpoint/old/scanava/hg-s2/preds.mat',
                     type=str, metavar='PATH', help='path to result (default: checkpoint/mpii/hg_s2_b1/preds.mat)')
 args = parser.parse_args()
-args.result = '/home/sehgal.n/syn-pytorch-pose/checkpoint/day_1_checkpoint/scanava/sa-hg-s2-b1-8000/preds.mat'
 
 # Load annotations
 annotations_path = "data/scanava/scanava_labels.npy"
 
 if __name__ == '__main__':
     results = eval_scanava(args.result, annotations_path)
-
-
+'''

@@ -6,6 +6,7 @@ import numpy as np
 import os
 import argparse
 
+
 def main(args):
     detection = loadmat('evaluation/data/detections.mat')
     det_idxs = detection['RELEASE_img_index']  # (1, 2958) array, max val of 24985
@@ -96,10 +97,11 @@ def main(args):
             , 0.5 * (PCKh[lelb] + PCKh[relb]),0.5 * (PCKh[lwri] + PCKh[rwri]), 0.5 * (PCKh[lhip] + PCKh[rhip]), 0.5 * (PCKh[lkne] + PCKh[rkne]) \
             , 0.5 * (PCKh[lank] + PCKh[rank]), np.mean(PCKh)))
 
-    print(pckAll)
-    print("Shape: {}".format(pckAll.shape))
-    np.save('pck.npy', pckAll)
-    print('Saved pck!')
+    return [threshold, pckAll]
+    # print(pckAll)
+    # print("Shape: {}".format(pckAll.shape))
+    # np.save('pck.npy', pckAll)
+    # print('Saved pck!')
 
 
 if __name__ == '__main__':

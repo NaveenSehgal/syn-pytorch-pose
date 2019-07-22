@@ -72,7 +72,7 @@ def accuracy(output, target, idxs, thr=0.5):
         acc[0] = avg_acc / cnt
     return acc
 
-def final_preds(output, center, scale, res):
+def final_preds(output, center, scale, res, is_ac2d=False):
     coords = get_preds(output) # float type
 
     # pose-processing

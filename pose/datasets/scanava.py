@@ -65,9 +65,6 @@ class ScanAva(data.Dataset):
                 'std': std,
                 }
             torch.save(meanstd, meanstd_file)
-        if self.is_train:
-            print('    Mean: %.4f, %.4f, %.4f' % (meanstd['mean'][0], meanstd['mean'][1], meanstd['mean'][2]))
-            print('    Std:  %.4f, %.4f, %.4f' % (meanstd['std'][0], meanstd['std'][1], meanstd['std'][2]))
 
         return meanstd['mean'], meanstd['std']
 

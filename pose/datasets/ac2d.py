@@ -32,7 +32,7 @@ class AC2d(data.Dataset):
         joints = annotations[0]  # (N, 16, 2)
 
         data = []
-        for i in range(len(annotations)):
+        for i in range(len(joints)):
             data.append([image_paths[i], joints[i], annotations[1][0][i]])
         data = np.array(data)  # (N, 3)
 
