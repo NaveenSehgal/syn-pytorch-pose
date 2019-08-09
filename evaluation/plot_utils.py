@@ -61,6 +61,7 @@ class ModelMetrics:
     def _calculate_pckh(self, dataset, noise):
         """ Run evaluation of this model for the given dataset """
         self._run_eval(dataset, noise)
+        print ('Calculated PCKh on {}'.format(dataset))
         pred_file = os.path.join(self.folder_path, "preds_valid.mat")
         anno_path = annotation_paths.get(dataset)
 
@@ -106,9 +107,9 @@ class ModelMetrics:
 
     def add_pckh(self, ax, dataset, noise):
         assert noise is None or noise == "gauss" or noise == "white", "Choose 'gauss' or 'white' for noise"
-
         pck = self._calculate_pckh(dataset, noise)
         x, y = pck[0], pck[1]
+        y = np.mean(y, axis=1)
         ax.plot(x, y, label=self.label)
 
 
@@ -118,6 +119,6 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots()
 
-    model.add_pckh(ax, 'mpii', None)
+    model.add_pckh(ax, 'ac2d', None)
     # fig = model.plot_train_val()
     # plt.show(fig)

@@ -29,6 +29,7 @@ def get_preds(scores):
     preds *= pred_mask
     return preds
 
+
 def calc_dists(preds, target, normalize):
     preds = preds.float()
     target = target.float()
@@ -72,7 +73,7 @@ def accuracy(output, target, idxs, thr=0.5):
         acc[0] = avg_acc / cnt
     return acc
 
-def final_preds(output, center, scale, res, is_ac2d=False):
+def final_preds(output, center, scale, res):
     coords = get_preds(output) # float type
 
     # pose-processing
@@ -90,7 +91,6 @@ def final_preds(output, center, scale, res, is_ac2d=False):
     # Transform back
     for i in range(coords.size(0)):
         preds[i] = transform_preds(coords[i], center[i], scale[i], res)
-
     if preds.dim() < 3:
         preds = preds.view(1, preds.size())
 

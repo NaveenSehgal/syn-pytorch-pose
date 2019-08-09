@@ -97,7 +97,7 @@ def main(args):
             , 0.5 * (PCKh[lelb] + PCKh[relb]),0.5 * (PCKh[lwri] + PCKh[rwri]), 0.5 * (PCKh[lhip] + PCKh[rhip]), 0.5 * (PCKh[lkne] + PCKh[rkne]) \
             , 0.5 * (PCKh[lank] + PCKh[rank]), np.mean(PCKh)))
 
-    return [threshold, pckAll]
+    return [rng, pckAll]
     # print(pckAll)
     # print("Shape: {}".format(pckAll.shape))
     # np.save('pck.npy', pckAll)
