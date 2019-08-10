@@ -107,9 +107,13 @@ def eval_ac2d(model_folder, use_gaussian_noise=False, use_white_noise=False):
     # Get headsizes
     head_idx = 9
     thorax_idx = 7
+
+    # TODO: fix this
+    head_idx = 2  # r hip
+    thorax_idx = 13  # l shoulder
     heads = ground_truth[head_idx, :, :] - ground_truth[thorax_idx, :, :]  # 2, N
     head_sizes = np.linalg.norm(heads, axis=0)  # (14800, )
-    head_sizes *= SC_BIAS
+    # head_sizes *= SC_BIAS
 
     # Scale error for PCKh@threshold
     scale = np.multiply(head_sizes, np.ones((len(uv_err), 1)))
@@ -131,7 +135,7 @@ def eval_ac2d(model_folder, use_gaussian_noise=False, use_white_noise=False):
 
 if __name__ == '__main__':
     evaluate = {
-        'test': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/old/scanava/hg-s2', False, False],
+        # 'test': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/old/scanava/hg-s2', False, False],
         'ScanAva2': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000', False, False],
         'ScanAva2_gblur': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000-gblur', True, False],
         'ScanAva2_wnoise': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000-wnoise', False, True],
