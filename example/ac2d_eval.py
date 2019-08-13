@@ -141,7 +141,8 @@ if __name__ == '__main__':
         'ScanAva2_wnoise': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000-wnoise', False, True],
         'ScanAva2_cycle': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000-cycle', False, False],
         'ScanAva2_cycle_bg': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava/sa-hg-s2-b1-8000-cycle-bg', False, False],
-        'MPII': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/mpii/mpii-hg-s2-b1-8000', False, False]
+        'MPII': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/mpii/mpii-hg-s2-b1-8000', False, False],
+        'ScanAva1': ['/home/sehgal.n/syn-pytorch-pose/checkpoint/scanava_7/sa7-hg-s2-b1-8000', False, False],
     }
 
     fig, ax = plt.subplots()
