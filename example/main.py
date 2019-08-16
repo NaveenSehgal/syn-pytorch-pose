@@ -51,7 +51,7 @@ def main(args):
     global idx
 
     # idx is the index of joints used to compute accuracy
-    if args.dataset in ['mpii', 'lsp', 'scanava', 'ac2d']:
+    if args.dataset in ['mpii', 'lsp', 'scanava', 'ac2d', 'surreal']:
         idx = [1,2,3,4,5,6,11,12,15,16]
     elif args.dataset == 'coco':
         idx = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]

@@ -37,6 +37,7 @@ class Mpii(data.Dataset):
                 self.valid_list.append(idx)
             else:
                 self.train_list.append(idx)
+        
         self.mean, self.std = self._compute_mean()
 
         # Setup custom domain adaptation for gaussian blur or white noise

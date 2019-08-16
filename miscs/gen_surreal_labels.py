@@ -15,7 +15,7 @@ for (dirpath, dirnames, filenames) in os.walk(path):
         data = np.load(os.path.join(dirpath, data_file))
         [filenames.remove(x) for x in filenames if not x.endswith('.png')] 
         filenames.sort()
-        filenames = [os.path.join(dirpath, x) for x in filenames]
+        filenames = [os.path.join(path, os.path.join(dirpath, x)) for x in filenames]
         
         assert len(filenames) == len(data), "Some wrong with data folder {}".format(dirpath)
 
