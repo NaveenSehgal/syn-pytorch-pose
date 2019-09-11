@@ -44,7 +44,7 @@ def eval_ac2d(model_folder, use_gaussian_noise=False, use_white_noise=False):
     images = sorted(glob.glob(os.path.join(image_path, "*.jpg")))
     annotations = np.load(anno_path, allow_pickle=True)
     joints = annotations[0]
-
+    
     # Domain adaptation
     if use_gaussian_noise:
         gaussian_kernel = noise.get_gaussian_kernel()
@@ -155,7 +155,7 @@ if __name__ == '__main__':
         ax.plot(x, y, label=model)
 
     ax.legend()
-    ax.set_xlabel('Normalized Distance')
+    ax.set_xlabel('Normalized Distance (torso)')
     ax.set_ylabel('Detection Rate, %')
     ax.set_title('Results on AC2d')
     plt.savefig('{}.png'.format('ac2d'), bbox_inches='tight')

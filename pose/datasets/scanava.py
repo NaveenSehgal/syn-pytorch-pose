@@ -20,6 +20,7 @@ import cv2
 class ScanAva(data.Dataset):
     def __init__(self, is_train = True, **kwargs):
         self.img_folder = kwargs['image_path']  # Root image folder (will contain sub-folders for each scanned model)
+        print('Img folder: {}'.format(self.img_folder))
         self.is_train = is_train
         self.inp_res = kwargs['inp_res']
         self.out_res = kwargs['out_res']

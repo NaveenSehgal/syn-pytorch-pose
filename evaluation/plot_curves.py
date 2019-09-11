@@ -8,7 +8,7 @@ sns.set_style("whitegrid")
 
 CHECKPOINT_DIR = "/home/sehgal.n/syn-pytorch-pose/checkpoint"
 DATASETS = ['mpii', 'scanava', 'ac2d', 'sjl']
-DATASETS = ['mpii', 'scanava']
+DATASETS = ['mpii'] #, 'scanava']
 model_info = {
     'ScanAva2': [os.path.join(CHECKPOINT_DIR, "scanava/sa-hg-s2-b1-8000"), None],
     'ScanAva2_gblur': [os.path.join(CHECKPOINT_DIR, "scanava/sa-hg-s2-b1-8000-gblur"), "gauss"],
@@ -17,6 +17,7 @@ model_info = {
     'ScanAva2_cycle_bg': [os.path.join(CHECKPOINT_DIR, "scanava/sa-hg-s2-b1-8000-cycle-bg"), None],
     "MPII": [os.path.join(CHECKPOINT_DIR, "mpii/mpii-hg-s2-b1-8000"), None],
     "SURREAL": [os.path.join(CHECKPOINT_DIR, "surreal/surreal-hg-s2-b1-8000"), None],
+    "SURREAL_wnoise": [os.path.join(CHECKPOINT_DIR, "surreal/surreal-hg-s2-b1-8000-wnoise"), "white"],
 }
 
 if __name__ == '__main__':
